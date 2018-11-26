@@ -77,7 +77,31 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
+  case T_PGFLT:
+    cprintf("page fault\n");
+    struct proc *curr = myproc();
+    uint stackPage = curr->stackPages + 1;
+    uint addr = rcr2();
+    if(addr >= USERTOP - stackPage * PGSIZE) 
+    {
+      if(allocuvm(curr->pgdir, PGROUNDDOWN(addr), PGROUNDDOWN(addr) + 8) == 0)
+      {
+        cprintf("Error allocating memory\n");
+        lapiceoi();
 
+        exit();
+        break;
+      }
+      curr->stackPages++;
+      cprintf("Stack increased in size\n");
+      break;
+      
+    }
+    else
+    {
+      cprintf("Stack failed to grow\n");
+      break;
+    }
   //PAGEBREAK: 13
   default:
     if(myproc() == 0 || (tf->cs&3) == 0){
