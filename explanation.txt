@@ -1,0 +1,1 @@
+It is not possible, for the page check makes sure that the stack and the heap are in separate memory spaces along with their boundaries. 
