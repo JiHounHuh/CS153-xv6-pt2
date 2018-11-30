@@ -41,9 +41,22 @@ return 0; //added to remove compiler warning -- you should decide what to return
 
 int shm_close(int id) {
 //you write this too!
+int i = 0;
+ acquire(&(shm_table.lock));
+ for(i = 0; i < SHM_TABLE_SIZE; i++){
+        if(shm_table.shm_pages[i].id == id){
+                shm_table.shm_pages[i].refcnt -= 1;
+                if(shm_table.shm_pages[i].refcnt <= 0) {
+                shm_table.shm_pages[i].id = 0;
+                shm_table.shm_pages[i].frame = 0;
+                shm_table.shm_pages[i].refcnt = 0;
+        }
+
+}
+
+release(&(shm_table.lock));
 
 
 
-
-return 0; //added to remove compiler warning -- you should decide what to return
+return -1; //added to remove compiler warning -- you should decide what to return
 }
